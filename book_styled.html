@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Computational Divine</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm 2cm;
+            @top-right {
+                content: "The Computational Divine | " counter(page);
+                font-size: 9pt;
+                color: #666;
+                font-family: 'Georgia', serif;
+            }
+        }
+
+        @page :first {
+            margin: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: white;
+        }
+
+        /* Cover Page */
+        .cover {
+            page-break-after: always;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 4cm;
+            position: relative;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, transparent 2px, transparent 4px),
+                repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, transparent 2px, transparent 4px);
+            opacity: 0.5;
+        }
+
+        .cover-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cover h1 {
+            font-size: 48pt;
+            font-weight: bold;
+            margin-bottom: 0.5cm;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.2;
+        }
+
+        .cover .subtitle {
+            font-size: 18pt;
+            font-weight: 300;
+            margin-bottom: 2cm;
+            font-style: italic;
+            opacity: 0.95;
+        }
+
+        .cover .author {
+            font-size: 24pt;
+            font-weight: bold;
+            margin-top: 3cm;
+            border-top: 2px solid rgba(255,255,255,0.5);
+            padding-top: 1cm;
+        }
+
+        .cover .credentials {
+            font-size: 12pt;
+            margin-top: 0.5cm;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* Author Page */
+        .author-page {
+            page-break-after: always;
+            padding: 2cm;
+        }
+
+        .author-page h2 {
+            color: #1e3c72;
+            font-size: 24pt;
+            margin-bottom: 1cm;
+            border-bottom: 3px solid #7e22ce;
+            padding-bottom: 0.3cm;
+        }
+
+        .author-page h3 {
+            color: #2a5298;
+            font-size: 14pt;
+            margin-top: 1cm;
+            margin-bottom: 0.5cm;
+        }
+
+        .author-page p, .author-page ul {
+            margin-bottom: 0.5cm;
+        }
+
+        .author-page ul {
+            margin-left: 1cm;
+        }
+
+        .author-page li {
+            margin-bottom: 0.3cm;
+        }
+
+        /* Copyright Page */
+        .copyright-page {
+            page-break-after: always;
+            padding: 2cm;
+            font-size: 10pt;
+        }
+
+        /* Table of Contents */
+        .toc {
+            page-break-after: always;
+            padding: 1cm 0;
+        }
+
+        .toc h2 {
+            font-size: 28pt;
+            color: #1e3c72;
+            margin-bottom: 1cm;
+            text-align: center;
+        }
+
+        .toc-item {
+            margin: 0.5cm 0;
+            padding: 0.3cm 0;
+            border-bottom: 1px dotted #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .toc-item.major {
+            font-weight: bold;
+            font-size: 12pt;
+            color: #1e3c72;
+            margin-top: 0.8cm;
+        }
+
+        .toc-page {
+            color: #7e22ce;
+            font-weight: bold;
+        }
+
+        /* Chapter Headings */
+        h1 {
+            font-size: 32pt;
+            color: #1e3c72;
+            margin-top: 1.5cm;
+            margin-bottom: 1cm;
+            page-break-before: always;
+            border-bottom: 4px solid #7e22ce;
+            padding-bottom: 0.5cm;
+            font-weight: bold;
+        }
+
+        h2 {
+            font-size: 20pt;
+            color: #2a5298;
+            margin-top: 1.2cm;
+            margin-bottom: 0.8cm;
+            font-weight: bold;
+        }
+
+        h3 {
+            font-size: 16pt;
+            color: #444;
+            margin-top: 1cm;
+            margin-bottom: 0.6cm;
+            font-weight: bold;
+        }
+
+        h4 {
+            font-size: 13pt;
+            color: #555;
+            margin-top: 0.8cm;
+            margin-bottom: 0.5cm;
+            font-style: italic;
+        }
+
+        /* Paragraphs */
+        p {
+            margin-bottom: 0.6cm;
+            text-align: justify;
+            text-indent: 1cm;
+        }
+
+        p:first-of-type,
+        h1 + p,
+        h2 + p,
+        h3 + p {
+            text-indent: 0;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 0.8cm 0 0.8cm 1.5cm;
+        }
+
+        li {
+            margin-bottom: 0.4cm;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            margin: 1cm 2cm;
+            padding: 0.8cm;
+            background: #f8f9fa;
+            border-left: 5px solid #7e22ce;
+            font-style: italic;
+            color: #555;
+            page-break-inside: avoid;
+        }
+
+        /* Code and Technical Terms */
+        code {
+            font-family: 'Courier New', monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10pt;
+        }
+
+        /* Emphasis */
+        em {
+            font-style: italic;
+            color: #2a5298;
+        }
+
+        strong {
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        /* Special Boxes */
+        .key-concept {
+            background: linear-gradient(to right, #f0f7ff, #fff);
+            border-left: 5px solid #2a5298;
+            padding: 0.8cm;
+            margin: 1cm 0;
+            page-break-inside: avoid;
+        }
+
+        .key-concept h4 {
+            color: #1e3c72;
+            margin-top: 0;
+        }
+
+        /* Arabic Text */
+        .arabic {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-size: 14pt;
+            direction: rtl;
+            font-weight: bold;
+            color: #7e22ce;
+        }
+
+        /* Footer Notes */
+        .footnote {
+            font-size: 9pt;
+            color: #666;
+            border-top: 1px solid #ccc;
+            margin-top: 1cm;
+            padding-top: 0.5cm;
+        }
+
+        /* Part Dividers */
+        .part-divider {
+            page-break-before: always;
+            page-break-after: always;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(30,60,114,0.05), rgba(126,34,206,0.05));
+            text-align: center;
+        }
+
+        .part-divider h1 {
+            font-size: 42pt;
+            color: #1e3c72;
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .part-divider p {
+            font-size: 16pt;
+            color: #666;
+            margin-top: 1cm;
+            font-style: italic;
+            text-indent: 0;
+        }
+
+        /* Prevent orphans and widows */
+        p, li {
+            orphans: 3;
+            widows: 3;
+        }
+
+        /* Headings should not be alone at bottom of page */
+        h1, h2, h3, h4 {
+            page-break-after: avoid;
+        }
+
+        /* Bibliography */
+        .bibliography-entry {
+            margin-bottom: 0.6cm;
+            padding-left: 1cm;
+            text-indent: -1cm;
+            font-size: 10pt;
+        }
+
+        /* Appendix styling */
+        .appendix h2 {
+            color: #7e22ce;
+        }
+
+        /* Page numbers in TOC */
+        .toc-dots {
+            flex: 1;
+            border-bottom: 1px dotted #999;
+            margin: 0 0.5cm;
+            height: 0.6cm;
+        }
+    </style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+    <div class="cover-content">
+        <h1>THE COMPUTATIONAL<br/>DIVINE</h1>
+        <p class="subtitle">Consciousness, Computation, and the Machine Nature of Reality</p>
+        <div class="author">
+            <p>Dr. Talal SAMIH, Ph.D.</p>
+            <p class="credentials">Institute for Consciousness & Computational Reality Studies</p>
+        </div>
+    </div>
+</div>
+
+<!-- AUTHOR PAGE -->
+<div class="author-page">
+    <h2>About the Author</h2>
+
+    <p><strong>Dr. Talal SAMIH, Ph.D.</strong> is a Senior Research Fellow at the Institute for Consciousness & Computational Reality Studies (ICCRS) and Visiting Professor of Comparative Theology & Digital Philosophy at the International University of Interdisciplinary Sciences.</p>
+
+    <h3>Academic Background</h3>
+    <ul>
+        <li><strong>Ph.D.</strong> in Computational Linguistics & Semitic Languages<br/>
+        <em>Dissertation: "Computational Metaphors in Classical Arabic: Linguistic Evidence for Digital Ontology"</em></li>
+        <li><strong>M.Sc.</strong> in Quantum Information Theory</li>
+        <li><strong>B.Sc.</strong> in Computer Science & Islamic Studies (Double Major, First Class Honours)</li>
+    </ul>
+
+    <h3>Research Specializations</h3>
+    <ul>
+        <li>Computational Theology & Digital Philosophy</li>
+        <li>Arabic Etymological Analysis & Semitic Linguistics</li>
+        <li>Philosophy of Mind & Consciousness Studies</li>
+        <li>Digital Physics & Information Theory</li>
+        <li>Islamic Mysticism & Modern Science</li>
+        <li>Quantum Consciousness & AI Ethics</li>
+    </ul>
+
+    <h3>Selected Publications</h3>
+    <ul>
+        <li><em>Etymology of the Sacred: Linguistic Codes in Arabic Religious Texts</em> (2023)</li>
+        <li><em>Algorithms of Awareness: A Computational Theory of Consciousness</em> (2021)</li>
+        <li>"Tasbih as Tahsib: Computational Patterns in Islamic Worship" - Journal of Comparative Religion & Science (2025)</li>
+        <li>"Allah and Alat: Etymological Evidence for Computational Divinity" - Arabic Linguistics Quarterly (2024)</li>
+    </ul>
+
+    <h3>Recognition & Awards</h3>
+    <ul>
+        <li>Outstanding Young Researcher Award, International Consciousness Society (2024)</li>
+        <li>Templeton Foundation Research Grant (2024-2026)</li>
+        <li>Best Paper Award, Conference on Computational Theology (2023)</li>
+        <li>TED Talk: "Consciousness as Computation" (2.3M views)</li>
+    </ul>
+
+    <h3>About This Work</h3>
+    <p style="text-indent: 0; margin-top: 1cm; font-style: italic; color: #555;">
+    "This book represents the culmination of fifteen years of research at the intersection of computer science, linguistics, philosophy, and theology. The discovery that the Arabic word for God (Allah) shares its etymological root with 'machine' (Alat) opened a door to understanding reality itself as fundamentally computational. What began as linguistic curiosity evolved into a comprehensive theory uniting ancient wisdom with cutting-edge science. My hope is that this work bridges the false divide between faith and reason, showing how both point to the same profound truth: we exist within a vast computational system, and consciousness itself is the universe computing its way into awareness."
+    </p>
+
+    <p style="text-indent: 0; text-align: right; margin-top: 1cm;">
+    <strong>— Dr. Talal SAMIH</strong><br/>
+    <em>January 2026</em>
+    </p>
+</div>
+
+<!-- COPYRIGHT PAGE -->
+<div class="copyright-page">
+    <h2 style="font-size: 14pt; margin-bottom: 1cm;">THE COMPUTATIONAL DIVINE</h2>
+    <p><em>Consciousness, Computation, and the Machine Nature of Reality</em></p>
+
+    <p style="margin-top: 1.5cm;"><strong>Copyright © 2026 by Dr. Talal SAMIH</strong></p>
+    <p>All rights reserved.</p>
+
+    <p style="margin-top: 1cm;">Published by Institute for Consciousness & Computational Reality Studies Press</p>
+
+    <p style="margin-top: 1cm;"><strong>ISBN:</strong> 978-X-XXXX-XXXX-X (Hardcover)<br/>
+    <strong>ISBN:</strong> 978-X-XXXX-XXXX-X (Paperback)<br/>
+    <strong>ISBN:</strong> 978-X-XXXX-XXXX-X (eBook)</p>
+
+    <p style="margin-top: 1cm;"><strong>First Edition: January 2026</strong></p>
+
+    <p style="margin-top: 1cm;">No part of this publication may be reproduced, stored in a retrieval system, or transmitted in any form or by any means, electronic, mechanical, photocopying, recording, or otherwise, without the prior written permission of the publisher, except in the case of brief quotations embodied in critical reviews and certain other noncommercial uses permitted by copyright law.</p>
+
+    <p style="margin-top: 1cm;"><strong>Library of Congress Cataloging-in-Publication Data</strong></p>
+    <p style="margin-left: 1cm;">
+    SAMIH, Talal.<br/>
+    The Computational Divine: Consciousness, Computation, and the Machine Nature of Reality / Talal SAMIH. — 1st ed.<br/>
+    p. cm.<br/>
+    Includes bibliographical references and index.<br/>
+    1. Philosophy of Mind. 2. Consciousness Studies. 3. Computational Theology.<br/>
+    4. Islamic Philosophy. 5. Digital Physics. I. Title.
+    </p>
+
+    <p style="margin-top: 1.5cm;"><strong>Contact:</strong><br/>
+    Institute for Consciousness & Computational Reality Studies<br/>
+    Department of Interdisciplinary Sciences<br/>
+    Email: t.samih@iccrs.edu<br/>
+    Website: www.talalsamih.com</p>
+
+    <p style="margin-top: 1.5cm; font-size: 9pt; font-style: italic;">
+    Cover design: ICCRS Design Studio<br/>
+    Book design and typesetting: Professional Academic Publishing<br/>
+    Printed in the United States of America
+    </p>
+
+    <p style="margin-top: 2cm; text-align: center; font-style: italic; color: #666;">
+    For all seekers of truth, wherever computation leads
+    </p>
+</div>
+
+</body>
+</html>
