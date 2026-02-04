@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport des Refuges & Cabanes de France</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-card: #1c2128;
+            --bg-hover: #292e36;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-green: #2ea043;
+            --accent-forest: #238636;
+            --accent-nature: #3fb950;
+            --accent-wood: #a67c52;
+            --accent-gold: #d4a03c;
+            --accent-blue: #58a6ff;
+            --accent-red: #f85149;
+            --border-color: #30363d;
+            --shadow: 0 8px 24px rgba(0,0,0,0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            min-height: 100vh;
+            font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 30px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo svg {
+            width: 42px;
+            height: 42px;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .logo-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 150px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-nature);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Filters Section */
+        .filters-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .filter-input,
+        .filter-select {
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(46, 160, 67, 0.15);
+        }
+
+        .filter-select {
+            cursor: pointer;
+        }
+
+        .filter-select option {
+            background: var(--bg-secondary);
+        }
+
+        /* Range Slider */
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .range-input {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .range-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .range-input::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            background: var(--accent-nature);
+        }
+
+        .range-value {
+            min-width: 70px;
+            text-align: right;
+            font-weight: 500;
+            color: var(--accent-nature);
+        }
+
+        /* Checkbox Filters */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .checkbox-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+
+        .checkbox-item:hover {
+            border-color: var(--accent-green);
+        }
+
+        .checkbox-item.active {
+            background: rgba(46, 160, 67, 0.15);
+            border-color: var(--accent-green);
+            color: var(--accent-nature);
+        }
+
+        .checkbox-item input {
+            display: none;
+        }
+
+        /* Action Buttons */
+        .actions-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent-forest);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-green);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-green);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px 40px;
+        }
+
+        /* Table Container */
+        .table-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .table-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: var(--bg-tertiary);
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .data-table th:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .data-table th.sorted {
+            color: var(--accent-nature);
+        }
+
+        .data-table th .sort-icon {
+            margin-left: 5px;
+            opacity: 0.5;
+        }
+
+        .data-table th.sorted .sort-icon {
+            opacity: 1;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        /* Table Cell Styles */
+        .shelter-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .shelter-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .shelter-icon svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent-nature);
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .type-badge.cabane {
+            background: rgba(46, 160, 67, 0.15);
+            color: var(--accent-nature);
+        }
+
+        .type-badge.refuge {
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .type-badge.abri {
+            background: rgba(212, 160, 60, 0.15);
+            color: var(--accent-gold);
+        }
+
+        .type-badge.bivouac {
+            background: rgba(166, 124, 82, 0.15);
+            color: var(--accent-wood);
+        }
+
+        .distance-cell {
+            font-weight: 500;
+        }
+
+        .distance-near {
+            color: var(--accent-nature);
+        }
+
+        .distance-medium {
+            color: var(--accent-gold);
+        }
+
+        .distance-far {
+            color: var(--accent-wood);
+        }
+
+        .altitude-cell {
+            color: var(--text-secondary);
+        }
+
+        .places-cell {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .equipment-icons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .equip-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .equip-icon.available {
+            background: rgba(46, 160, 67, 0.15);
+            color: var(--accent-nature);
+        }
+
+        .coords-cell {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .link-btn:hover {
+            background: var(--accent-forest);
+            color: white;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .page-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .page-btn.active {
+            background: var(--accent-forest);
+            border-color: var(--accent-green);
+            color: white;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            padding: 0 15px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Loading */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            gap: 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            gap: 15px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            opacity: 0.5;
+        }
+
+        /* Scrollable Table Wrapper */
+        .table-scroll {
+            overflow-x: auto;
+            max-height: calc(100vh - 400px);
+            overflow-y: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .logo-text {
+                font-size: 1.4rem;
+            }
+
+            .stats-row {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat-card {
+                min-width: auto;
+            }
+
+            .filters-section {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 10px 12px;
+            }
+
+            .equipment-icons {
+                display: none;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .header {
+                position: relative;
+                background: white;
+                color: black;
+            }
+
+            .filters-section,
+            .actions-row,
+            .pagination {
+                display: none;
+            }
+
+            .data-table {
+                font-size: 10pt;
+            }
+
+            .data-table th,
+            .data-table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            .type-badge {
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-top">
+                <div class="logo">
+                    <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 5L5 19H10V33H32V19H37L21 5Z" fill="#2ea043"/>
+                        <path d="M21 5L5 19H10L21 9L32 19H37L21 5Z" fill="#238636"/>
+                        <rect x="17" y="22" width="8" height="11" fill="#a67c52"/>
+                        <rect x="12" y="12" width="5" height="4" fill="#ffd54f" opacity="0.7"/>
+                        <rect x="25" y="12" width="5" height="4" fill="#ffd54f" opacity="0.7"/>
+                    </svg>
+                    <div>
+                        <div class="logo-text">Rapport des Refuges</div>
+                        <div class="logo-subtitle">Cabanes & refuges gratuits de France - Distance depuis Paris</div>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="totalCount">-</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="filteredCount">-</div>
+                            <div class="stat-label">Filtres</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="avgDistance">-</div>
+                            <div class="stat-label">Dist. moy.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label class="filter-label">Recherche</label>
+                    <input type="text" class="filter-input" id="searchFilter" placeholder="Nom du refuge...">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Type</label>
+                    <select class="filter-select" id="typeFilter">
+                        <option value="">Tous les types</option>
+                        <option value="cabane">Cabanes</option>
+                        <option value="refuge">Refuges</option>
+                        <option value="abri">Abris</option>
+                        <option value="bivouac">Bivouacs</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Distance max depuis Paris</label>
+                    <div class="range-container">
+                        <input type="range" class="range-input" id="distanceFilter" min="0" max="1000" value="1000" step="50">
+                        <span class="range-value" id="distanceValue">1000 km</span>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Altitude min</label>
+                    <div class="range-container">
+                        <input type="range" class="range-input" id="altitudeFilter" min="0" max="3000" value="0" step="100">
+                        <span class="range-value" id="altitudeValue">0 m</span>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Places min</label>
+                    <select class="filter-select" id="placesFilter">
+                        <option value="0">Toutes capacites</option>
+                        <option value="2">2+ places</option>
+                        <option value="5">5+ places</option>
+                        <option value="10">10+ places</option>
+                        <option value="20">20+ places</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Equipements</label>
+                    <div class="checkbox-group" id="equipmentFilters">
+                        <label class="checkbox-item" data-equip="eau">
+                            <input type="checkbox" value="eau">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+                            Eau
+                        </label>
+                        <label class="checkbox-item" data-equip="poele">
+                            <input type="checkbox" value="poele">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v10M18.5 8a6.5 6.5 0 11-13 0"/><rect x="3" y="14" width="18" height="8" rx="1"/></svg>
+                            Poele
+                        </label>
+                        <label class="checkbox-item" data-equip="couvertures">
+                            <input type="checkbox" value="couvertures">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg>
+                            Couvertures
+                        </label>
+                        <label class="checkbox-item" data-equip="cheminee">
+                            <input type="checkbox" value="cheminee">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 14v8M16 14v8M6 22h12M4 14h16M12 2l-2 4 2 4-2 4"/></svg>
+                            Cheminee
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions-row">
+                <button class="btn btn-primary" id="resetFilters">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/>
+                        <path d="M21 3v5h-5"/>
+                        <path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/>
+                        <path d="M8 16H3v5"/>
+                    </svg>
+                    Reinitialiser
+                </button>
+                <button class="btn btn-secondary" id="exportCSV">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Exporter CSV
+                </button>
+                <button class="btn btn-secondary" id="printReport">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"/>
+                        <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+                        <rect x="6" y="14" width="12" height="8"/>
+                    </svg>
+                    Imprimer
+                </button>
+                <a class="btn btn-secondary" href="refuges-france.html">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                        <line x1="8" y1="2" x2="8" y2="18"/>
+                        <line x1="16" y1="6" x2="16" y2="22"/>
+                    </svg>
+                    Voir la carte
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="table-container">
+            <div class="table-header">
+                <h2 class="table-title">Liste des refuges</h2>
+                <div class="table-info" id="tableInfo">Chargement...</div>
+            </div>
+
+            <div class="table-scroll">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th data-sort="nom">
+                                Nom
+                                <span class="sort-icon">↕</span>
+                            </th>
+                            <th data-sort="type">
+                                Type
+                                <span class="sort-icon">↕</span>
+                            </th>
+                            <th data-sort="distance" class="sorted">
+                                Distance Paris
+                                <span class="sort-icon">↑</span>
+                            </th>
+                            <th data-sort="altitude">
+                                Altitude
+                                <span class="sort-icon">↕</span>
+                            </th>
+                            <th data-sort="places">
+                                Places
+                                <span class="sort-icon">↕</span>
+                            </th>
+                            <th>Equipements</th>
+                            <th>Coordonnees</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="8">
+                                <div class="loading-container">
+                                    <div class="loading-spinner"></div>
+                                    <div class="loading-text">Chargement des refuges depuis l'API...</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </main>
+
+    <script>
+        // ========================================
+        // Configuration
+        // ========================================
+        const CONFIG = {
+            apiBaseUrl: 'https://www.refuges.info/api',
+            bboxFrance: '-5,41,10,51',
+            maxPoints: 1500,
+            parisCoords: { lat: 48.8566, lon: 2.3522 },
+            itemsPerPage: 50
+        };
+
+        // ========================================
+        // State
+        // ========================================
+        let allShelters = [];
+        let filteredShelters = [];
+        let currentPage = 1;
+        let sortColumn = 'distance';
+        let sortDirection = 'asc';
+
+        // ========================================
+        // Haversine Distance Calculation
+        // ========================================
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function toRad(deg) {
+            return deg * (Math.PI / 180);
+        }
+
+        // ========================================
+        // Fetch Shelters Data
+        // ========================================
+        async function fetchShelters() {
+            const typePoints = 'cabane,refuge,abri,bivouac';
+            const url = `${CONFIG.apiBaseUrl}/bbox?bbox=${CONFIG.bboxFrance}&type_points=${typePoints}&nb_points=${CONFIG.maxPoints}&detail=complet&format=geojson`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                return data.features || [];
+            } catch (error) {
+                console.error('Error fetching shelters:', error);
+                return [];
+            }
+        }
+
+        // ========================================
+        // Process Data
+        // ========================================
+        function processShelters(features) {
+            return features.map(feature => {
+                const props = feature.properties;
+                const coords = feature.geometry.coordinates;
+                const lat = props.coord?.lat || coords[1];
+                const lon = props.coord?.long || coords[0];
+
+                const distance = calculateDistance(
+                    CONFIG.parisCoords.lat,
+                    CONFIG.parisCoords.lon,
+                    lat,
+                    lon
+                );
+
+                return {
+                    id: props.id,
+                    nom: props.nom || 'Sans nom',
+                    type: props.type?.valeur || 'inconnu',
+                    lat: lat,
+                    lon: lon,
+                    altitude: props.coord?.alt || 0,
+                    places: parseInt(props.places?.valeur) || 0,
+                    distance: Math.round(distance),
+                    eau: props.info_comp?.eau?.valeur === '1',
+                    poele: props.info_comp?.poele?.valeur === '1',
+                    cheminee: props.info_comp?.cheminee?.valeur === '1',
+                    couvertures: props.info_comp?.couvertures?.valeur === '1',
+                    latrines: props.info_comp?.latrines?.valeur === '1',
+                    bois: props.info_comp?.bois?.valeur === '1',
+                    lien: props.lien || `https://www.refuges.info/point/${props.id}`
+                };
+            });
+        }
+
+        // ========================================
+        // Filter Data
+        // ========================================
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const maxDistance = parseInt(document.getElementById('distanceFilter').value);
+            const minAltitude = parseInt(document.getElementById('altitudeFilter').value);
+            const minPlaces = parseInt(document.getElementById('placesFilter').value);
+
+            // Equipment filters
+            const equipFilters = [];
+            document.querySelectorAll('#equipmentFilters input:checked').forEach(cb => {
+                equipFilters.push(cb.value);
+            });
+
+            filteredShelters = allShelters.filter(shelter => {
+                // Search filter
+                if (searchTerm && !shelter.nom.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+
+                // Type filter
+                if (typeFilter && !shelter.type.toLowerCase().includes(typeFilter)) {
+                    return false;
+                }
+
+                // Distance filter
+                if (shelter.distance > maxDistance) {
+                    return false;
+                }
+
+                // Altitude filter
+                if (shelter.altitude < minAltitude) {
+                    return false;
+                }
+
+                // Places filter
+                if (shelter.places < minPlaces) {
+                    return false;
+                }
+
+                // Equipment filters
+                for (const equip of equipFilters) {
+                    if (!shelter[equip]) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            // Apply sorting
+            sortShelters();
+
+            // Reset to first page
+            currentPage = 1;
+
+            // Update UI
+            updateStats();
+            renderTable();
+            renderPagination();
+        }
+
+        // ========================================
+        // Sort Data
+        // ========================================
+        function sortShelters() {
+            filteredShelters.sort((a, b) => {
+                let valA = a[sortColumn];
+                let valB = b[sortColumn];
+
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (sortDirection === 'asc') {
+                    return valA < valB ? -1 : valA > valB ? 1 : 0;
+                } else {
+                    return valA > valB ? -1 : valA < valB ? 1 : 0;
+                }
+            });
+        }
+
+        function handleSort(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            // Update header styles
+            document.querySelectorAll('.data-table th').forEach(th => {
+                th.classList.remove('sorted');
+                th.querySelector('.sort-icon').textContent = '↕';
+            });
+
+            const activeHeader = document.querySelector(`th[data-sort="${column}"]`);
+            if (activeHeader) {
+                activeHeader.classList.add('sorted');
+                activeHeader.querySelector('.sort-icon').textContent = sortDirection === 'asc' ? '↑' : '↓';
+            }
+
+            sortShelters();
+            renderTable();
+        }
+
+        // ========================================
+        // Update Stats
+        // ========================================
+        function updateStats() {
+            document.getElementById('totalCount').textContent = allShelters.length;
+            document.getElementById('filteredCount').textContent = filteredShelters.length;
+
+            if (filteredShelters.length > 0) {
+                const avgDist = Math.round(
+                    filteredShelters.reduce((sum, s) => sum + s.distance, 0) / filteredShelters.length
+                );
+                document.getElementById('avgDistance').textContent = avgDist + ' km';
+            } else {
+                document.getElementById('avgDistance').textContent = '-';
+            }
+
+            document.getElementById('tableInfo').textContent =
+                `${filteredShelters.length} refuges sur ${allShelters.length}`;
+        }
+
+        // ========================================
+        // Render Table
+        // ========================================
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const start = (currentPage - 1) * CONFIG.itemsPerPage;
+            const end = start + CONFIG.itemsPerPage;
+            const pageData = filteredShelters.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="M21 21l-4.35-4.35"/>
+                                </svg>
+                                <div>Aucun refuge ne correspond aux filtres</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = pageData.map(shelter => `
+                <tr>
+                    <td>
+                        <div class="shelter-name">
+                            <div class="shelter-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                </svg>
+                            </div>
+                            ${escapeHtml(shelter.nom)}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="type-badge ${shelter.type.toLowerCase()}">${shelter.type}</span>
+                    </td>
+                    <td>
+                        <span class="distance-cell ${getDistanceClass(shelter.distance)}">${shelter.distance} km</span>
+                    </td>
+                    <td class="altitude-cell">${shelter.altitude > 0 ? shelter.altitude + ' m' : '-'}</td>
+                    <td>
+                        <div class="places-cell">
+                            ${shelter.places > 0 ? shelter.places : '-'}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="equipment-icons">
+                            <div class="equip-icon ${shelter.eau ? 'available' : ''}" title="Eau">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+                            </div>
+                            <div class="equip-icon ${shelter.poele ? 'available' : ''}" title="Poele">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v10M18.5 8a6.5 6.5 0 11-13 0"/></svg>
+                            </div>
+                            <div class="equip-icon ${shelter.cheminee ? 'available' : ''}" title="Cheminee">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 14v8M16 14v8M6 22h12"/></svg>
+                            </div>
+                            <div class="equip-icon ${shelter.couvertures ? 'available' : ''}" title="Couvertures">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="coords-cell">${shelter.lat.toFixed(4)}, ${shelter.lon.toFixed(4)}</td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <a class="link-btn" href="${shelter.lien}" target="_blank" title="Voir sur refuges.info">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                                    <polyline points="15 3 21 3 21 9"/>
+                                    <line x1="10" y1="14" x2="21" y2="3"/>
+                                </svg>
+                            </a>
+                            <a class="link-btn" href="https://www.google.com/maps/dir/?api=1&destination=${shelter.lat},${shelter.lon}" target="_blank" title="Itineraire">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getDistanceClass(distance) {
+            if (distance < 300) return 'distance-near';
+            if (distance < 600) return 'distance-medium';
+            return 'distance-far';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========================================
+        // Render Pagination
+        // ========================================
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredShelters.length / CONFIG.itemsPerPage);
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button class="page-btn" onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="11 17 6 12 11 7"/>
+                        <polyline points="18 17 13 12 18 7"/>
+                    </svg>
+                </button>
+                <button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+            `;
+
+            // Page numbers
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            html += `
+                <button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <button class="page-btn" onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="13 17 18 12 13 7"/>
+                        <polyline points="6 17 11 12 6 7"/>
+                    </svg>
+                </button>
+                <span class="page-info">Page ${currentPage} sur ${totalPages}</span>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredShelters.length / CONFIG.itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+            renderPagination();
+            document.querySelector('.table-scroll').scrollTop = 0;
+        }
+
+        // ========================================
+        // Export CSV
+        // ========================================
+        function exportCSV() {
+            const headers = ['Nom', 'Type', 'Distance Paris (km)', 'Altitude (m)', 'Places', 'Latitude', 'Longitude', 'Eau', 'Poele', 'Cheminee', 'Couvertures', 'Lien'];
+
+            const rows = filteredShelters.map(s => [
+                `"${s.nom.replace(/"/g, '""')}"`,
+                s.type,
+                s.distance,
+                s.altitude,
+                s.places,
+                s.lat.toFixed(6),
+                s.lon.toFixed(6),
+                s.eau ? 'Oui' : 'Non',
+                s.poele ? 'Oui' : 'Non',
+                s.cheminee ? 'Oui' : 'Non',
+                s.couvertures ? 'Oui' : 'Non',
+                s.lien
+            ]);
+
+            const csv = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `refuges-france-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ========================================
+        // Reset Filters
+        // ========================================
+        function resetFilters() {
+            document.getElementById('searchFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('distanceFilter').value = 1000;
+            document.getElementById('distanceValue').textContent = '1000 km';
+            document.getElementById('altitudeFilter').value = 0;
+            document.getElementById('altitudeValue').textContent = '0 m';
+            document.getElementById('placesFilter').value = 0;
+
+            document.querySelectorAll('#equipmentFilters input').forEach(cb => {
+                cb.checked = false;
+                cb.closest('.checkbox-item').classList.remove('active');
+            });
+
+            applyFilters();
+        }
+
+        // ========================================
+        // Initialize Event Listeners
+        // ========================================
+        function initEventListeners() {
+            // Filter inputs
+            document.getElementById('searchFilter').addEventListener('input', debounce(applyFilters, 300));
+            document.getElementById('typeFilter').addEventListener('change', applyFilters);
+            document.getElementById('placesFilter').addEventListener('change', applyFilters);
+
+            // Range sliders
+            document.getElementById('distanceFilter').addEventListener('input', function() {
+                document.getElementById('distanceValue').textContent = this.value + ' km';
+            });
+            document.getElementById('distanceFilter').addEventListener('change', applyFilters);
+
+            document.getElementById('altitudeFilter').addEventListener('input', function() {
+                document.getElementById('altitudeValue').textContent = this.value + ' m';
+            });
+            document.getElementById('altitudeFilter').addEventListener('change', applyFilters);
+
+            // Equipment checkboxes
+            document.querySelectorAll('#equipmentFilters .checkbox-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const checkbox = this.querySelector('input');
+                    checkbox.checked = !checkbox.checked;
+                    this.classList.toggle('active', checkbox.checked);
+                    applyFilters();
+                });
+            });
+
+            // Sort headers
+            document.querySelectorAll('.data-table th[data-sort]').forEach(th => {
+                th.addEventListener('click', () => handleSort(th.dataset.sort));
+            });
+
+            // Action buttons
+            document.getElementById('resetFilters').addEventListener('click', resetFilters);
+            document.getElementById('exportCSV').addEventListener('click', exportCSV);
+            document.getElementById('printReport').addEventListener('click', () => window.print());
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // ========================================
+        // Initialize App
+        // ========================================
+        async function init() {
+            initEventListeners();
+
+            // Fetch data
+            const features = await fetchShelters();
+            allShelters = processShelters(features);
+            filteredShelters = [...allShelters];
+
+            // Sort by distance by default
+            sortShelters();
+
+            // Update UI
+            updateStats();
+            renderTable();
+            renderPagination();
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
