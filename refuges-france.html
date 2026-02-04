@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cabanes & Refuges Gratuits de France</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- MarkerCluster CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-card: #1c2128;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-green: #2ea043;
+            --accent-forest: #238636;
+            --accent-nature: #3fb950;
+            --accent-wood: #a67c52;
+            --accent-gold: #d4a03c;
+            --border-color: #30363d;
+            --shadow: 0 8px 24px rgba(0,0,0,0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, rgba(22, 27, 34, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .logo-text { display: none; }
+        }
+
+        /* Search Bar */
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(46, 160, 67, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1001;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .search-result-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .search-result-type {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Filter Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-green);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-forest);
+            border-color: var(--accent-green);
+        }
+
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 5px;
+            min-width: 200px;
+            display: none;
+            z-index: 1001;
+            box-shadow: var(--shadow);
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .dropdown-item input[type="checkbox"] {
+            accent-color: var(--accent-green);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Stats Badge */
+        .stats-badge {
+            background: var(--accent-forest);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .stats-badge span { display: none; }
+        }
+
+        /* Map Container */
+        #map {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        /* Custom Cluster Styles */
+        .marker-cluster-small,
+        .marker-cluster-medium,
+        .marker-cluster-large {
+            background: rgba(46, 160, 67, 0.3) !important;
+        }
+
+        .marker-cluster-small div,
+        .marker-cluster-medium div,
+        .marker-cluster-large div {
+            background: var(--accent-forest) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            font-family: 'Source Sans 3', sans-serif !important;
+        }
+
+        .marker-cluster-small {
+            background: rgba(46, 160, 67, 0.4) !important;
+        }
+
+        .marker-cluster-medium {
+            background: rgba(212, 160, 60, 0.4) !important;
+        }
+
+        .marker-cluster-medium div {
+            background: var(--accent-gold) !important;
+        }
+
+        .marker-cluster-large {
+            background: rgba(166, 124, 82, 0.4) !important;
+        }
+
+        .marker-cluster-large div {
+            background: var(--accent-wood) !important;
+        }
+
+        /* Custom Marker */
+        .shelter-marker {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+            transition: transform 0.2s ease;
+        }
+
+        .shelter-marker:hover {
+            transform: scale(1.1);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .modal-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--accent-forest);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: white;
+            margin-top: 8px;
+        }
+
+        .modal-close {
+            background: var(--bg-tertiary);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Photo Carousel */
+        .carousel {
+            position: relative;
+            background: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        .carousel-container {
+            display: flex;
+            transition: transform 0.4s ease;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            aspect-ratio: 16/10;
+            background-size: cover;
+            background-position: center;
+            background-color: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-slide.loading::after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .carousel-nav:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .carousel-nav.prev { left: 10px; }
+        .carousel-nav.next { right: 10px; }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .carousel-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        .no-photos {
+            aspect-ratio: 16/10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            gap: 10px;
+        }
+
+        .no-photos svg {
+            opacity: 0.5;
+        }
+
+        /* Info Section */
+        .info-section {
+            padding: 20px 24px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: var(--bg-tertiary);
+            padding: 12px 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-nature);
+            flex-shrink: 0;
+        }
+
+        .info-card-content {
+            overflow: hidden;
+        }
+
+        .info-card-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card-value {
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Equipment Tags */
+        .equipment-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .equipment-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .equipment-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .equipment-tag.available {
+            background: rgba(46, 160, 67, 0.15);
+            color: var(--accent-nature);
+        }
+
+        .equipment-tag svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Description */
+        .description-section {
+            margin-bottom: 20px;
+        }
+
+        .description-text {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* Comments */
+        .comments-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .comment {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .comment-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .comment-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        /* Modal Actions */
+        .modal-actions {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            border: none;
+        }
+
+        .action-btn-primary {
+            background: var(--accent-forest);
+            color: white;
+        }
+
+        .action-btn-primary:hover {
+            background: var(--accent-green);
+        }
+
+        .action-btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn-secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-green);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            gap: 20px;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Leaflet popup customization */
+        .leaflet-popup-content-wrapper {
+            background: var(--bg-secondary) !important;
+            border-radius: 12px !important;
+            box-shadow: var(--shadow) !important;
+        }
+
+        .leaflet-popup-content {
+            margin: 0 !important;
+            color: var(--text-primary) !important;
+        }
+
+        .leaflet-popup-tip {
+            background: var(--bg-secondary) !important;
+        }
+
+        .popup-content {
+            padding: 15px;
+            min-width: 200px;
+        }
+
+        .popup-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .popup-info {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .popup-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: var(--accent-forest);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: var(--transition);
+        }
+
+        .popup-btn:hover {
+            background: var(--accent-green);
+        }
+
+        /* Attribution styling */
+        .leaflet-control-attribution {
+            background: rgba(22, 27, 34, 0.8) !important;
+            color: var(--text-muted) !important;
+        }
+
+        .leaflet-control-attribution a {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Zoom controls */
+        .leaflet-control-zoom a {
+            background: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: var(--bg-tertiary) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header {
+                padding: 0 10px;
+                gap: 10px;
+            }
+
+            .controls .filter-btn span {
+                display: none;
+            }
+
+            .modal {
+                max-height: 95vh;
+                border-radius: 12px 12px 0 0;
+            }
+
+            .modal-overlay {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 4L4 16H8V26H24V16H28L16 4Z" fill="#2ea043"/>
+                <path d="M16 4L4 16H8L16 8L24 16H28L16 4Z" fill="#238636"/>
+                <rect x="13" y="18" width="6" height="8" fill="#a67c52"/>
+                <rect x="11" y="10" width="3" height="3" fill="#d4a03c" opacity="0.8"/>
+                <rect x="18" y="10" width="3" height="3" fill="#d4a03c" opacity="0.8"/>
+            </svg>
+            <span class="logo-text">Refuges & Cabanes</span>
+        </div>
+
+        <div class="search-container">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un refuge...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <div class="controls">
+            <div class="filter-dropdown">
+                <button class="filter-btn" id="typeFilterBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                    <span>Type</span>
+                </button>
+                <div class="dropdown-menu" id="typeDropdown">
+                    <label class="dropdown-item">
+                        <input type="checkbox" value="cabane" checked> Cabanes non gardees
+                    </label>
+                    <label class="dropdown-item">
+                        <input type="checkbox" value="refuge" checked> Refuges
+                    </label>
+                    <label class="dropdown-item">
+                        <input type="checkbox" value="abri" checked> Abris
+                    </label>
+                    <label class="dropdown-item">
+                        <input type="checkbox" value="bivouac" checked> Bivouacs
+                    </label>
+                </div>
+            </div>
+
+            <div class="stats-badge" id="statsBadge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span id="statsCount">0</span> <span>refuges</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Chargement des refuges...</div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="modalTitle">Nom du refuge</h2>
+                    <div class="modal-type" id="modalType">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        </svg>
+                        <span>Type</span>
+                    </div>
+                </div>
+                <button class="modal-close" id="modalClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Photo Carousel -->
+                <div class="carousel" id="carousel">
+                    <div class="carousel-container" id="carouselContainer"></div>
+                    <button class="carousel-nav prev" id="carouselPrev">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                    </button>
+                    <button class="carousel-nav next" id="carouselNext">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </button>
+                    <div class="carousel-dots" id="carouselDots"></div>
+                </div>
+
+                <div class="info-section">
+                    <!-- Info Cards -->
+                    <div class="info-grid" id="infoGrid"></div>
+
+                    <!-- Equipment -->
+                    <div class="equipment-section">
+                        <div class="section-title">Equipements</div>
+                        <div class="equipment-tags" id="equipmentTags"></div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="description-section" id="descriptionSection">
+                        <div class="section-title">Description</div>
+                        <p class="description-text" id="descriptionText"></p>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="comments-section" id="commentsSection">
+                        <div class="section-title">Commentaires recents</div>
+                        <div id="commentsList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <a class="action-btn action-btn-primary" id="directionsBtn" href="#" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                    </svg>
+                    Itineraire
+                </a>
+                <a class="action-btn action-btn-secondary" id="refugesInfoBtn" href="#" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    Voir sur refuges.info
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- MarkerCluster JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+
+    <script>
+        // ========================================
+        // Configuration
+        // ========================================
+        const CONFIG = {
+            mapCenter: [46.5, 2.5],
+            mapZoom: 6,
+            apiBaseUrl: 'https://www.refuges.info/api',
+            bboxFrance: '-5,41,10,51',
+            maxPoints: 1500
+        };
+
+        // ========================================
+        // State
+        // ========================================
+        let map;
+        let markersCluster;
+        let allFeatures = [];
+        let filteredFeatures = [];
+        let currentFilters = {
+            types: ['cabane', 'refuge', 'abri', 'bivouac']
+        };
+        let currentCarouselIndex = 0;
+        let currentPhotos = [];
+
+        // ========================================
+        // Shelter Icon SVG
+        // ========================================
+        const shelterIconSvg = `
+            <svg width="32" height="38" viewBox="0 0 32 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+                </filter>
+                <g filter="url(#shadow)">
+                    <path d="M16 2L2 14H6V24H26V14H30L16 2Z" fill="#2ea043"/>
+                    <path d="M16 2L2 14H6L16 5L26 14H30L16 2Z" fill="#238636"/>
+                    <rect x="13" y="16" width="6" height="8" fill="#8b5a2b"/>
+                    <rect x="8" y="9" width="4" height="3" fill="#ffd54f" opacity="0.7"/>
+                    <rect x="20" y="9" width="4" height="3" fill="#ffd54f" opacity="0.7"/>
+                </g>
+                <ellipse cx="16" cy="35" rx="6" ry="2" fill="rgba(0,0,0,0.2)"/>
+            </svg>
+        `;
+
+        const shelterIcon = L.divIcon({
+            html: shelterIconSvg,
+            className: 'shelter-marker',
+            iconSize: [32, 38],
+            iconAnchor: [16, 38],
+            popupAnchor: [0, -38]
+        });
+
+        // ========================================
+        // Initialize Map
+        // ========================================
+        function initMap() {
+            map = L.map('map', {
+                center: CONFIG.mapCenter,
+                zoom: window.innerWidth < 768 ? 5 : CONFIG.mapZoom,
+                zoomControl: true
+            });
+
+            // Tile layers
+            const openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                maxZoom: 17,
+                attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+            });
+
+            const cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20,
+                subdomains: 'abcd',
+                attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+            });
+
+            const osmStandard = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>'
+            });
+
+            // Add default layer
+            cartoDark.addTo(map);
+
+            // Layer control
+            L.control.layers({
+                'Mode sombre': cartoDark,
+                'OpenTopoMap': openTopoMap,
+                'OpenStreetMap': osmStandard
+            }, null, { position: 'topright' }).addTo(map);
+
+            // Initialize marker cluster group
+            markersCluster = L.markerClusterGroup({
+                chunkedLoading: true,
+                maxClusterRadius: 60,
+                spiderfyOnMaxZoom: true,
+                showCoverageOnHover: false,
+                zoomToBoundsOnClick: true,
+                disableClusteringAtZoom: 14,
+                iconCreateFunction: function(cluster) {
+                    const count = cluster.getChildCount();
+                    let size = 'small';
+                    if (count >= 50) size = 'large';
+                    else if (count >= 10) size = 'medium';
+
+                    return L.divIcon({
+                        html: `<div><span>${count}</span></div>`,
+                        className: `marker-cluster marker-cluster-${size}`,
+                        iconSize: L.point(40, 40)
+                    });
+                }
+            });
+
+            map.addLayer(markersCluster);
+        }
+
+        // ========================================
+        // Fetch Shelters Data
+        // ========================================
+        async function fetchShelters() {
+            const typePoints = 'cabane,refuge,abri,bivouac';
+            const url = `${CONFIG.apiBaseUrl}/bbox?bbox=${CONFIG.bboxFrance}&type_points=${typePoints}&nb_points=${CONFIG.maxPoints}&detail=complet&format=geojson`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                return data.features || [];
+            } catch (error) {
+                console.error('Error fetching shelters:', error);
+                return [];
+            }
+        }
+
+        // ========================================
+        // Create Markers
+        // ========================================
+        function createMarkers(features) {
+            markersCluster.clearLayers();
+
+            features.forEach(feature => {
+                if (!feature.geometry || !feature.geometry.coordinates) return;
+
+                const coords = feature.geometry.coordinates;
+                const props = feature.properties;
+                const lat = coords[1];
+                const lon = coords[0];
+
+                const marker = L.marker([lat, lon], { icon: shelterIcon });
+
+                // Popup content
+                const popupContent = `
+                    <div class="popup-content">
+                        <div class="popup-name">${props.nom || 'Sans nom'}</div>
+                        <div class="popup-info">${props.type?.valeur || 'Type inconnu'}</div>
+                        <div class="popup-info">${props.coord?.alt ? props.coord.alt + ' m' : ''}</div>
+                        <div class="popup-info">${props.places?.valeur ? props.places.valeur + ' places' : ''}</div>
+                        <button class="popup-btn" onclick="openModal(${props.id})">Voir les details</button>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent, {
+                    maxWidth: 280,
+                    className: 'custom-popup'
+                });
+
+                marker.featureId = props.id;
+                marker.feature = feature;
+
+                markersCluster.addLayer(marker);
+            });
+
+            updateStats(features.length);
+        }
+
+        // ========================================
+        // Filter Markers
+        // ========================================
+        function filterMarkers() {
+            const selectedTypes = currentFilters.types;
+
+            filteredFeatures = allFeatures.filter(feature => {
+                const typeValue = feature.properties.type?.valeur?.toLowerCase() || '';
+                return selectedTypes.some(type => typeValue.includes(type));
+            });
+
+            createMarkers(filteredFeatures);
+        }
+
+        // ========================================
+        // Update Stats
+        // ========================================
+        function updateStats(count) {
+            document.getElementById('statsCount').textContent = count;
+        }
+
+        // ========================================
+        // Search Functionality
+        // ========================================
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            let debounceTimer;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                const query = e.target.value.toLowerCase().trim();
+
+                if (query.length < 2) {
+                    searchResults.classList.remove('active');
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    const results = filteredFeatures.filter(f =>
+                        f.properties.nom?.toLowerCase().includes(query)
+                    ).slice(0, 10);
+
+                    if (results.length > 0) {
+                        searchResults.innerHTML = results.map(f => `
+                            <div class="search-result-item" data-id="${f.properties.id}" data-lat="${f.geometry.coordinates[1]}" data-lon="${f.geometry.coordinates[0]}">
+                                <div class="search-result-name">${f.properties.nom}</div>
+                                <div class="search-result-type">${f.properties.type?.valeur || ''} ${f.properties.coord?.alt ? '- ' + f.properties.coord.alt + 'm' : ''}</div>
+                            </div>
+                        `).join('');
+                        searchResults.classList.add('active');
+                    } else {
+                        searchResults.innerHTML = '<div class="search-result-item"><div class="search-result-name">Aucun resultat</div></div>';
+                        searchResults.classList.add('active');
+                    }
+                }, 200);
+            });
+
+            searchResults.addEventListener('click', (e) => {
+                const item = e.target.closest('.search-result-item');
+                if (item && item.dataset.id) {
+                    const lat = parseFloat(item.dataset.lat);
+                    const lon = parseFloat(item.dataset.lon);
+                    const id = parseInt(item.dataset.id);
+
+                    map.setView([lat, lon], 14);
+                    searchResults.classList.remove('active');
+                    searchInput.value = '';
+
+                    setTimeout(() => openModal(id), 500);
+                }
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-container')) {
+                    searchResults.classList.remove('active');
+                }
+            });
+        }
+
+        // ========================================
+        // Filter Dropdowns
+        // ========================================
+        function initFilters() {
+            const typeFilterBtn = document.getElementById('typeFilterBtn');
+            const typeDropdown = document.getElementById('typeDropdown');
+
+            typeFilterBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                typeDropdown.classList.toggle('active');
+            });
+
+            typeDropdown.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    const checkboxes = typeDropdown.querySelectorAll('input[type="checkbox"]');
+                    currentFilters.types = Array.from(checkboxes)
+                        .filter(cb => cb.checked)
+                        .map(cb => cb.value);
+                    filterMarkers();
+                }
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.filter-dropdown')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('active'));
+                }
+            });
+        }
+
+        // ========================================
+        // Modal Functions
+        // ========================================
+        async function openModal(pointId) {
+            const modalOverlay = document.getElementById('modalOverlay');
+            const feature = allFeatures.find(f => f.properties.id === pointId);
+
+            if (!feature) return;
+
+            const props = feature.properties;
+
+            // Set basic info
+            document.getElementById('modalTitle').textContent = props.nom || 'Sans nom';
+            document.getElementById('modalType').querySelector('span').textContent = props.type?.valeur || 'Type inconnu';
+
+            // Info cards
+            const infoGrid = document.getElementById('infoGrid');
+            const lat = props.coord?.lat || feature.geometry.coordinates[1];
+            const lon = props.coord?.long || feature.geometry.coordinates[0];
+            const alt = props.coord?.alt;
+            const places = props.places?.valeur;
+
+            infoGrid.innerHTML = `
+                <div class="info-card">
+                    <div class="info-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                        </svg>
+                    </div>
+                    <div class="info-card-content">
+                        <div class="info-card-label">Coordonnees</div>
+                        <div class="info-card-value">${lat.toFixed(4)}, ${lon.toFixed(4)}</div>
+                    </div>
+                </div>
+                ${alt ? `
+                <div class="info-card">
+                    <div class="info-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+                            <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                            <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
+                            <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
+                            <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/>
+                            <path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
+                            <path d="M10 9.5C10 10.33 9.33 11 8.5 11h-5C2.67 11 2 10.33 2 9.5S2.67 8 3.5 8h5c.83 0 1.5.67 1.5 1.5z"/>
+                            <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/>
+                        </svg>
+                    </div>
+                    <div class="info-card-content">
+                        <div class="info-card-label">Altitude</div>
+                        <div class="info-card-value">${alt} m</div>
+                    </div>
+                </div>
+                ` : ''}
+                ${places ? `
+                <div class="info-card">
+                    <div class="info-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 010 7.75"/>
+                        </svg>
+                    </div>
+                    <div class="info-card-content">
+                        <div class="info-card-label">Capacite</div>
+                        <div class="info-card-value">${places} places</div>
+                    </div>
+                </div>
+                ` : ''}
+                ${props.etat?.valeur ? `
+                <div class="info-card">
+                    <div class="info-card-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <div class="info-card-content">
+                        <div class="info-card-label">Etat</div>
+                        <div class="info-card-value">${props.etat.valeur}</div>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            // Equipment tags
+            const equipmentTags = document.getElementById('equipmentTags');
+            const infoComp = props.info_comp || {};
+            const equipments = [
+                { key: 'eau', label: 'Eau', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>' },
+                { key: 'poele', label: 'Poele', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v10M18.5 8a6.5 6.5 0 11-13 0"/><rect x="3" y="14" width="18" height="8" rx="1"/></svg>' },
+                { key: 'cheminee', label: 'Cheminee', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 14v8M16 14v8M6 22h12M4 14h16M12 2l-2 4 2 4-2 4"/></svg>' },
+                { key: 'couvertures', label: 'Couvertures', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg>' },
+                { key: 'latrines', label: 'Latrines', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12l2 5H4zM4 7v12a2 2 0 002 2h12a2 2 0 002-2V7"/></svg>' },
+                { key: 'bois', label: 'Bois proche', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L8 10h8zM8 10l-4 8h16l-4-8M12 10v12"/></svg>' }
+            ];
+
+            equipmentTags.innerHTML = equipments.map(eq => {
+                const val = infoComp[eq.key]?.valeur;
+                const isAvailable = val === '1' || val === 1;
+                return `
+                    <span class="equipment-tag ${isAvailable ? 'available' : ''}">
+                        ${eq.icon}
+                        ${eq.label}
+                    </span>
+                `;
+            }).join('');
+
+            // Description
+            const descSection = document.getElementById('descriptionSection');
+            const descText = document.getElementById('descriptionText');
+            const description = props.remarque?.valeur || props.acces?.valeur || '';
+
+            if (description) {
+                descText.textContent = cleanBBCode(description);
+                descSection.style.display = 'block';
+            } else {
+                descSection.style.display = 'none';
+            }
+
+            // Set action buttons
+            document.getElementById('directionsBtn').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+            document.getElementById('refugesInfoBtn').href = props.lien || `https://www.refuges.info/point/${pointId}`;
+
+            // Show modal
+            modalOverlay.classList.add('active');
+
+            // Fetch comments and photos
+            await fetchCommentsAndPhotos(pointId);
+        }
+
+        async function fetchCommentsAndPhotos(pointId) {
+            const carouselContainer = document.getElementById('carouselContainer');
+            const carouselDots = document.getElementById('carouselDots');
+            const commentsSection = document.getElementById('commentsSection');
+            const commentsList = document.getElementById('commentsList');
+
+            // Show loading state
+            carouselContainer.innerHTML = '<div class="carousel-slide loading"></div>';
+            carouselDots.innerHTML = '';
+            commentsList.innerHTML = '<div class="comment"><div class="comment-text">Chargement...</div></div>';
+
+            try {
+                const response = await fetch(`${CONFIG.apiBaseUrl}/commentaires?id_point=${pointId}`);
+                const data = await response.json();
+
+                // Parse comments (they come as object with numeric keys)
+                const comments = [];
+                const photos = [];
+
+                Object.keys(data).forEach(key => {
+                    if (key === 'copyright') return;
+                    const comment = data[key];
+                    if (comment.texte_commentaire) {
+                        comments.push(comment);
+                    }
+                    if (comment['photo-reduite']) {
+                        photos.push({
+                            thumbnail: `https://www.refuges.info${comment['photo-vignette']}`,
+                            medium: `https://www.refuges.info${comment['photo-reduite']}`,
+                            original: `https://www.refuges.info${comment['photo-originale'] || comment['photo-reduite']}`,
+                            caption: comment.texte_commentaire || '',
+                            author: comment.auteur_commentaire
+                        });
+                    }
+                });
+
+                // Update carousel
+                currentPhotos = photos;
+                currentCarouselIndex = 0;
+
+                if (photos.length > 0) {
+                    carouselContainer.innerHTML = photos.map((photo, i) => `
+                        <div class="carousel-slide" style="background-image: url('${photo.medium}')"></div>
+                    `).join('');
+
+                    carouselDots.innerHTML = photos.map((_, i) => `
+                        <div class="carousel-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></div>
+                    `).join('');
+
+                    document.getElementById('carouselPrev').style.display = photos.length > 1 ? 'flex' : 'none';
+                    document.getElementById('carouselNext').style.display = photos.length > 1 ? 'flex' : 'none';
+                } else {
+                    carouselContainer.innerHTML = `
+                        <div class="no-photos">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            <span>Aucune photo disponible</span>
+                        </div>
+                    `;
+                    document.getElementById('carouselPrev').style.display = 'none';
+                    document.getElementById('carouselNext').style.display = 'none';
+                }
+
+                // Update comments
+                if (comments.length > 0) {
+                    commentsList.innerHTML = comments.slice(0, 5).map(c => `
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">${c.auteur_commentaire || 'Anonyme'}</span>
+                                <span class="comment-date">${formatDate(c.date_commentaire)}</span>
+                            </div>
+                            <div class="comment-text">${cleanBBCode(c.texte_commentaire)}</div>
+                        </div>
+                    `).join('');
+                    commentsSection.style.display = 'block';
+                } else {
+                    commentsSection.style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Error fetching comments:', error);
+                carouselContainer.innerHTML = `
+                    <div class="no-photos">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        <span>Photos non disponibles</span>
+                    </div>
+                `;
+                commentsSection.style.display = 'none';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        // ========================================
+        // Carousel Navigation
+        // ========================================
+        function initCarousel() {
+            const prevBtn = document.getElementById('carouselPrev');
+            const nextBtn = document.getElementById('carouselNext');
+            const dotsContainer = document.getElementById('carouselDots');
+
+            prevBtn.addEventListener('click', () => navigateCarousel(-1));
+            nextBtn.addEventListener('click', () => navigateCarousel(1));
+
+            dotsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('carousel-dot')) {
+                    goToSlide(parseInt(e.target.dataset.index));
+                }
+            });
+        }
+
+        function navigateCarousel(direction) {
+            if (currentPhotos.length === 0) return;
+            currentCarouselIndex = (currentCarouselIndex + direction + currentPhotos.length) % currentPhotos.length;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentCarouselIndex = index;
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            const container = document.getElementById('carouselContainer');
+            const dots = document.querySelectorAll('.carousel-dot');
+
+            container.style.transform = `translateX(-${currentCarouselIndex * 100}%)`;
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentCarouselIndex);
+            });
+        }
+
+        // ========================================
+        // Utility Functions
+        // ========================================
+        function cleanBBCode(text) {
+            if (!text) return '';
+            return text
+                .replace(/\[b\](.*?)\[\/b\]/gi, '$1')
+                .replace(/\[u\](.*?)\[\/u\]/gi, '$1')
+                .replace(/\[i\](.*?)\[\/i\]/gi, '$1')
+                .replace(/\[url=([^\]]+)\](.*?)\[\/url\]/gi, '$2')
+                .replace(/\[email\](.*?)\[\/email\]/gi, '$1')
+                .replace(/\r\n/g, ' ')
+                .replace(/\n/g, ' ')
+                .trim();
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('fr-FR', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            } catch {
+                return dateStr.split(' ')[0];
+            }
+        }
+
+        // ========================================
+        // Event Listeners
+        // ========================================
+        function initEventListeners() {
+            // Modal close
+            document.getElementById('modalClose').addEventListener('click', closeModal);
+            document.getElementById('modalOverlay').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeModal();
+            });
+
+            // Escape key closes modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+        }
+
+        // ========================================
+        // Initialize App
+        // ========================================
+        async function init() {
+            initMap();
+            initSearch();
+            initFilters();
+            initCarousel();
+            initEventListeners();
+
+            // Fetch and display shelters
+            allFeatures = await fetchShelters();
+            filteredFeatures = allFeatures;
+            createMarkers(allFeatures);
+
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
