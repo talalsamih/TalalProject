@@ -16,7 +16,7 @@ export const Root: React.FC = () => {
       <Composition
         id="Robot3D"
         component={Robot3DScene}
-        durationInFrames={360}
+        durationInFrames={1800}
         fps={30}
         width={1920}
         height={1080}
